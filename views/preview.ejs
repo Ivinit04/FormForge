@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./styles/preview.css" />
+    <title>Custom Preview Form</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="quiz-card" id="question-1">
+        <div class="quiz-card-header">
+          <div class="question-title">Question 1</div>
+        </div>
+        <div class="question-content">
+          <div class="draggable-items category">
+            <% categories.forEach(category => { %> <%
+            category.items.forEach(item => { %>
+            <div class="draggable-item" draggable="true"><%= item %></div>
+            <% }) %> <% }); %>
+          </div>
+
+          <div class="country-and-city">
+            <% categories.forEach(category => { %> <%
+            category.categories.forEach(category => { %>
+            <div
+              class="category-container"
+              id="category-container-<%= category %>"
+            >
+              <h3><%= category %></h3>
+            </div>
+            <% }) %> <% }); %>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-card" id="question-2">
+        <div class="quiz-card-header">
+          <div class="question-title">Question 2</div>
+        </div>
+        <div id="cloze-container" class="draggable-container">
+          <div class="draggable-items cloze">
+            <% clozes.forEach(cloze => { %> <% cloze.options.forEach(option =>{
+            %>
+            <!-- console.log(option); -->
+            <div class="draggable-item" draggable="true"><%= option %></div>
+            <% }) %> <% }); %>
+          </div>
+          <div class="question-content">
+            <% clozes.forEach(cloze => { %>
+            <div class="cloze-question cloze"><%= cloze.preview %></div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-card" id="question-3">
+        <div class="quiz-card-header">
+          <div class="question-title">Question 3</div>
+        </div>
+        <% comprehensions.forEach(Comprehension => { %>
+        <!-- console.log(Comprehension.passage); -->
+        <p><%= Comprehension.passage %></p>
+        <% }); %>
+        <!-- Question 3.1 -->
+        <div class="question">
+          <% comprehensions.forEach(Comprehension => { %> <% for (let i = 0; i <
+          Comprehension.questions.length; i++) { %> <% const question =
+          Comprehension.questions[i]; %>
+          <!-- console.log(question); -->
+          <button
+            class="custom-button expand-button"
+            onclick="toggleQuestion('<%= i %>')"
+          >
+            <span class="custom-button-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </span>
+            <span class="custom-button-text">Question</span>
+          </button>
+          <div id="<%= i %>" class="question-content hidden">
+            <!-- Content for Question 3.1 goes here -->
+            <div class="multiple-choice-question">
+              <p><%= question %></p>
+
+              <div class="mcq-options">
+                <% for (let j = i; j < Comprehension.options.length; j++) { %>
+                <% const option = Comprehension.options[j]; %> <%
+                option.forEach(item => { %>
+                <!-- console.log(item); -->
+                <label
+                  ><input type="radio" name="radioGroup<%= i %>" /> <%= item
+                  %></label
+                >
+                <% }); %> <% break; %> <% } %>
+              </div>
+            </div>
+          </div>
+          <% } %> <% }); %>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // JavaScript for the Category container
+      const categoryDraggableItems = document.querySelectorAll(
+        ".category .draggable-item"
+      );
+      const categoryContainers = document.querySelectorAll(
+        ".category-container"
+      );
+
+      categoryDraggableItems.forEach((item) => {
+        item.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", e.target.textContent);
+        });
+      });
+
+      categoryContainers.forEach((container) => {
+        container.addEventListener("dragover", (e) => {
+          e.preventDefault();
+        });
+
+        container.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const data = e.dataTransfer.getData("text/plain");
+          const containerId = container.id;
+          const regex = /category-container-(\w+)/;
+          const match = containerId.match(regex);
+          if (match) {
+            const category = match[1];
+            if (draggableItemsContainsItem(category, data)) {
+              const newItem = document.createElement("div");
+              newItem.textContent = data;
+              container.appendChild(newItem);
+              removeDraggableItem(category, data);
+            }
+          }
+        });
+      });
+
+      function draggableItemsContainsItem(category, item) {
+        return Array.from(categoryDraggableItems).some(
+          (element) => element.textContent === item
+        );
+      }
+
+      function removeDraggableItem(category, item) {
+        const itemToRemove = Array.from(categoryDraggableItems).find(
+          (element) => element.textContent === item
+        );
+        if (itemToRemove) {
+          itemToRemove.parentNode.removeChild(itemToRemove);
+        }
+      }
+
+      // JavaScript for the Cloze container
+      const clozeContainer = document.getElementById("cloze-container");
+      const draggableItemsCloze = clozeContainer.querySelectorAll(
+        ".cloze .draggable-item"
+      );
+      const clozeQuestions = clozeContainer.querySelectorAll(".cloze-question");
+
+      clozeQuestions.forEach((question) => {
+        question.innerHTML = question.innerHTML.replace(
+          /_____/g,
+          '<span class="drop-target"></span>'
+        );
+      });
+
+      draggableItemsCloze.forEach((item) => {
+        item.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", e.target.textContent);
+        });
+      });
+
+      const dropTargets = clozeContainer.querySelectorAll(".drop-target");
+
+      dropTargets.forEach((dropTarget) => {
+        dropTarget.addEventListener("dragover", (e) => {
+          e.preventDefault();
+        });
+
+        dropTarget.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const data = e.dataTransfer.getData("text/plain");
+          const newItem = document.createElement("div");
+          newItem.textContent = data;
+          dropTarget.appendChild(newItem);
+
+          removeDraggableItemCloze(data);
+        });
+      });
+
+      function removeDraggableItemCloze(item) {
+        const itemToRemove = Array.from(draggableItemsCloze).find(
+          (element) => element.textContent === item
+        );
+        if (itemToRemove) {
+          itemToRemove.parentNode.removeChild(itemToRemove);
+        }
+      }
+
+      // JavaScript to toggle the visibility of Question 3.1 content
+      const expandButton = document.querySelector("#question-3 .expand-button");
+      const questionContent = document.querySelector(
+        "#question-3 .question-content"
+      );
+
+      expandButton.addEventListener("click", () => {
+        questionContent.classList.toggle("hidden");
+      });
+
+      function toggleQuestion(questionId) {
+        const questionContent = document.getElementById(questionId);
+        if (
+          questionContent.style.display === "none" ||
+          questionContent.style.display === ""
+        ) {
+          questionContent.style.display = "block";
+        } else {
+          questionContent.style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>

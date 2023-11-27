@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body>
+    <form action="/comprehension" method="post">
+        <div class="container">
+            <h1>Comprehension Question Form</h1>
+            <div class="input-section">
+                <label for="reference-text">Reference Text:</label>
+                <textarea id="reference-text" rows="6" name="Passage" required></textarea>
+            </div>
+            <h1>Multiple Choice Question Form</h1>
+            <div id="mcq-container"> <!-- Container for MCQ sections -->
+                <div class="mcq-section">
+                    <div class="input-section">
+                        <label for="question">Question:</label>
+                        <textarea class="question-input" name="Questions" required></textarea>
+                    </div>
+                    <div class="input-section">
+                        <label for="options">Options:</label>
+                        <ul class="option-list">
+                            <li class="option">
+                                <input type="radio" class="option-radio" name="OptionClicked1" value="0" required>
+                                <input type="text" class="option-text" name="OptionsText1" required>
+                            </li>
+                            <li class="option">
+                                <input type="radio" class="option-radio" name="OptionClicked1" value="1" required>
+                                <input type="text" class="option-text" name="OptionsText1" required>
+                            </li>
+                        </ul>
+                        <button type="button" class="add-option">Add Option</button>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" id="options-text" name="OptionsText" value="">
+            <button type="button" id="add-question">Add Question</button> <!-- Button to add a new MCQ section -->
+        </div>
+        <div class="submit-button">
+            <button type="submit" onclick="arrayOfOptions()">Submit</button>
+        </div>
+    </form>
+
+    <script>
+        // JavaScript code for adding new options to both default and dynamic MCQ sections
+        const mcqContainer = document.getElementById("mcq-container");
+        const addQuestionButton = document.getElementById("add-question");
+
+        let questionCount = 2;
+        
+        function arrayOfOptions() {
+            let arrayOfOptions = [];
+
+            const form = document.querySelector("form");
+            const questions = form.querySelectorAll(".question-input");
+            const optionLists = form.querySelectorAll(".option-list");
+
+            questions.forEach((question , index)=>{
+                const options = optionLists[index].querySelectorAll(".option-text");
+                const optionsArray = [];
+
+                options.forEach((option) => {
+                    optionsArray.push(option.value);
+                });
+
+                arrayOfOptions.push(optionsArray);
+            });
+            document.getElementById("options-text").value = JSON.stringify(arrayOfOptions);
+        }
+    
+        function attachAddOptionEventListener(mcqSection , questionCount) {
+            const addOptionButton = mcqSection.querySelector(".add-option");
+            const optionList = mcqSection.querySelector(".option-list");
+    
+            addOptionButton.addEventListener("click", function () {
+                const newIndex = optionList.querySelectorAll(".option").length;
+    
+                const newOption = document.createElement("li");
+                newOption.classList.add("option");
+                newOption.innerHTML = `
+                    <input type="radio" class="option-radio" name="OptionClicked${questionCount}" value="${newIndex}" required>
+                    <input type="text" class="option-text" name="OptionsText${questionCount}" required>
+                `;
+                optionList.appendChild(newOption);
+            });
+        }
+    
+        addQuestionButton.addEventListener("click", function () {
+            const newMcqSection = document.createElement("div");
+            newMcqSection.classList.add("mcq-section");
+    
+            newMcqSection.innerHTML = `
+                <div class="input-section">
+                    <label for="question">Question:</label>
+                    <textarea class="question-input" name="Questions" required></textarea>
+                </div>
+                <div class="input-section">
+                    <label for="options">Options:</label>
+                    <ul class="option-list">
+                        <li class="option">
+                            <input type="radio" class="option-radio" name="OptionClicked${questionCount}" value="0" required>
+                            <input type="text" class="option-text" name="OptionsText${questionCount}" required>
+                        </li>
+                        <li class="option">
+                            <input type=radio class="option-radio" name="OptionClicked${questionCount}" value="1" required>
+                            <input type="text" class="option-text" name="OptionsText${questionCount}" required>
+                        </li>
+                    </ul>
+                    <button type="button" class="add-option">Add Option</button>
+                </div>
+            `;
+    
+            mcqContainer.appendChild(newMcqSection);
+    
+            // Attach the event listener for adding options to the new MCQ section
+            attachAddOptionEventListener(newMcqSection , questionCount);
+            questionCount++;
+        });
+    
+        // Attach the event listener for adding options to the default MCQ section
+        const defaultMcqSection = mcqContainer.querySelector(".mcq-section");
+        attachAddOptionEventListener(defaultMcqSection , 1);
+
+        
+
+
+    </script>
+    
+</body>
+</html>

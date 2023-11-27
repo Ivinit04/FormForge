@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="./styles/styles.css">
+</head>
+<body>
+    <form action="/cloze" method="post" id="cloze-form">
+        <div class="container">
+            <h1>Cloze Question Form</h1>
+            <div class="input-section">
+                <label for="sentence">1. Sentence/Paragraph:</label>
+                <textarea id="sentence" rows="4" name="Paragraph" required></textarea>
+            </div>
+            <div class="input-section">
+                <label for="underline">2. Underline words to be replaced:</label>
+                <input type="text" id="underline"  placeholder="Enter word(s) and press Enter" required>
+                <div id="underlined-words"></div>
+            </div>
+            <div class="input-section">
+                <label for="options">3. Add Options:</label>
+                <input type="text" id="options"  placeholder="Enter option and press Enter" required>
+                <ul id="options-list"></ul>
+            </div> 
+            
+              <!-- Hidden input fields to store underlined words and options -->
+            <input type="hidden" id="underlined-words-input" name="UnderlinedWords" value="">
+            <input type="hidden" id="options-input" name="Options" value="">
+            <input type="hidden" id="preview-input" name="Preview" value="">
+            
+            <div class="preview-section">
+                <h2>Preview:</h2>
+                <p id="preview-sentence"></p>
+            </div>
+        </div>
+        <div class="submit-button">
+            <button type="submit">Save & Next</button>
+        </div>
+    </form>
+    
+    <script src="./script.js"></script>
+</body>
+</html>

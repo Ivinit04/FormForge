@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Form</title>
+    <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body>
+    <form action="/" method="post">
+        <div class="custom-form">
+            <h2>Question 1</h2>
+            
+            <!-- Categories Section -->
+            <h3>Categories:</h3>
+            <div id="categories-container" >
+                <div class="form-group" draggable="true">
+                    <label for="category">Category 1</label>
+                    <input type="text" class="form-input" name="categories[]" required>
+                </div>
+                <div class="form-group" draggable="true">
+                    <label for="category">Category 2</label>
+                    <input type="text" class="form-input" name="categories[]" required>
+                </div>
+            </div>
+            <button type="button" class="add-button" id="add-category">Add Category</button>
+    
+            <!-- Items Section -->
+            <h3>Items:</h3>
+            <div id="items-container">
+                <div class="form-group">
+                    <label for="item">Item 1</label>
+                    <input type="text" class="form-input" name="items[]" required>
+                    <label for="belongsto">Belongs to</label>
+                    <select class="form-input" name="belongsto[]">
+                        <option value="Category 1">Category 1</option>
+                        <option value="Category 2">Category 2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="item">Item 2</label>
+                    <input type="text" class="form-input" name="items[]" required>
+                    <label for="belongsto">Belongs to</label>
+                    <select class="form-input" name="belongsto[]">
+                        <option value="Category 1">Category 1</option>
+                        <option value="Category 2">Category 2</option>
+                    </select>
+                </div>
+            </div>
+            <button type="button" class="add-button" id="add-item">Add Item</button>
+        </div>
+        <div class="submit-button">
+            <button type="submit">Save & Next</button>
+        </div>
+    </form>
+    
+    <script>
+        let categoryCount = 2;
+
+        document.getElementById("add-category").addEventListener("click", function () {
+            categoryCount++;
+            const categoriesContainer = document.getElementById("categories-container");
+            const newCategoryGroup = document.createElement("div");
+            newCategoryGroup.classList.add("form-group");
+            newCategoryGroup.innerHTML = `
+                <label for="category">Category ${categoryCount}</label>
+                <input type="text" class="form-input" name="categories[]">
+            `;
+            categoriesContainer.appendChild(newCategoryGroup);
+
+             // Listen for category input changes and update dropdown accordingly
+            const categoryInputs = document.querySelectorAll('input[name="categories[]"]');
+            categoryInputs.forEach(input => {
+                input.addEventListener('input', updateBelongsToDropdown);
+            });    
+
+        });
+
+        let itemCount = 2;
+
+        document.getElementById("add-item").addEventListener("click", function () {
+            itemCount++;
+            const itemsContainer = document.getElementById("items-container");
+            const newItemGroup = document.createElement("div");
+            newItemGroup.classList.add("form-group");
+            newItemGroup.innerHTML = `
+                <label for="item">Item ${itemCount}</label>
+                <input type="text" class="form-input" name="items[]">
+                <label for="belongsto">Belongs to</label>
+                <select class="form-input" name="belongsto[]">
+                    <!-- Dropdown options will be dynamically generated here -->
+                </select>
+            `;
+            itemsContainer.appendChild(newItemGroup);
+            
+            // Update the "Belongs to" dropdowns with the new category option
+            updateBelongsToDropdown();
+            
+        });
+
+        function updateBelongsToDropdown() {
+            const dropdowns = document.querySelectorAll('select[name="belongsto[]"]');
+            const categories = document.querySelectorAll('input[name="categories[]"]');
+            
+            dropdowns.forEach(dropdown => {
+                dropdown.innerHTML = ''; // Clear existing options
+                categories.forEach(category => {
+                    if (category.value.trim() !== '') {
+                        const option = document.createElement('option');
+                        option.value = category.value;
+                        option.text = category.value;
+                        dropdown.appendChild(option);
+                    }else{
+                        const option = document.createElement('option');
+                        option.value = "Choose Category";
+                        option.text = "Choose Category"
+                        dropdown.appendChild(option);
+                    }
+                });
+            });
+        }
+
+        // Listen for category input changes and update dropdown accordingly(for default category)
+        const categoryInputs = document.querySelectorAll('input[name="categories[]"]');
+        categoryInputs.forEach(input => {
+            input.addEventListener('input', updateBelongsToDropdown);
+        });
+
+    </script>
+</body>
+</html>
